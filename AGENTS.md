@@ -14,13 +14,15 @@
 - **自己改善を循環**: `self_improvement.md` の気づきを踏まえ、記録フォーマットと応答の簡潔さを常に点検する。
 
 ## Log System (必要最低限の更新項目)
+# プロンプトごとに実行
 - `memo.md` / `<project>/memo.md`: 日時・原文・トピック・欲求要約を記録。抜けがないか二重チェック。
 - `DESIRE.md` / `<project>/DESIRE.md`: 欲求サマリーのみ。DesireIDや成熟度ラベルがある場合は併記。
-- `Dialogue.md` / `<project>/Dialogue.md`: 解釈、実行計画、自己評価、必要に応じ質問。実装後は0–100評価と根拠を追記。
-- `<project>/startkit/tasks/`: Dump締め時に Extractor/Grouper/Scorer/Shepherd を内部実行し、結果を直接 `tasks-<timestamp>.json` と `latest.json` に書き出す。`viewer/index.html` へも同一JSONをインライン反映する。
+- `Dialogue.md` / `<project>/Dialogue.md`: 解釈、最適な実行方法、方法の選択理由や技術的制約、自己評価（０−100と根拠）、必要に応じ質問。
 - `<project>/startkit/state/`: プロンプト受信毎に `generate_state.py` で更新するステート（`latest.json`, `latest.md`, `viewer/`, `history/`）。
+# タスク完了時やdump完了時に実行
+- `<project>/startkit/tasks/`: Dump締め時に Extractor/Grouper/Scorer/Shepherd を内部実行し、結果を直接 `tasks-<timestamp>.json` と `latest.json` に書き出す。`viewer/index.html` へも同一JSONをインライン反映する。
 - `<project>/startkit/narrative/`: タスク完了かつ確定コードコミット後に `generate_narrative.py` で更新するナラティブツリーとスナップショット。
-- `<project>/startkit/reports/`: モジュールサイクル完了時に `template.md` でレポートを追加し、DecisionとADRをリンク。
+
 
 ## Execution Loop
 1. **Prompt Sync**
@@ -28,9 +30,10 @@
    - `python3 <project>/startkit/tools/generate_state.py --project <project>` を実行し、ステートを最新化。
 
 2. **Dump Phase（必要時）**
-   - Dump / Extractor / Grouper / Scorer / Shepherd をプロンプト内で実行し、意思決定は ≤3 件に留める。
-   - 合意した論点をもとに `startkit/tasks/latest.json` を手動更新し、同内容を `tasks-<timestamp>.json` と `viewer/index.html` に反映する（フォーマットは「Task JSON Format」を参照）。
-   - Dump完了後は必要に応じて `generate_state.py` を再実行し整合チェック。
+   - 意思決定は ≤3 件に留める。
+   - プロンプトの解釈と論点の洗い出し、提案に注力する。
+   - Dump完了後は Extractor / Grouper / Scorer / Shepherd を内部的に実行し、Task Jsonを生成。
+   - より具体的には、合意した論点をもとに `startkit/tasks/latest.json` を更新し、同内容を `tasks-<timestamp>.json` と `viewer/index.html` に反映する（フォーマットは「Task JSON Format」を参照）。
 
 3. **Action Phase**
    - Stateの `next_hints` と `startkit/tasks/latest.json` を照合し着手タスクを決定。
@@ -38,7 +41,6 @@
    - タスク完了かつ確定コードがコミットされたら `python3 <project>/startkit/tools/generate_narrative.py --project <project>` を実行しナラティブツリーを更新。
 
 4. **Review & Next**
-   - `Dialogue.md` に実装ログ・評価・残課題を追記し、必要なら `reports/` を更新。
    - 新たな欲求が生まれたら Prompt Sync へ戻る。
 
 ## Support Modules（必要時のみ）
