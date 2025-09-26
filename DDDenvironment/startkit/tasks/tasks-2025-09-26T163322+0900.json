@@ -1,0 +1,180 @@
+{
+  "project": "REPORT",
+  "generated_at": "2025-09-26T16:33:22+09:00",
+  "generator": {
+    "agent": "codex",
+    "version": "1.0"
+  },
+  "source_summary": {
+    "dump_window": "2025-09-26T12:00+09:00→2025-09-26T16:31+09:00",
+    "notes": [
+      "State/Narrative cycle finalized; manual task JSON flow adopted",
+      "Dump focus: state synthesizer, narrative mirror, task composer"
+    ]
+  },
+  "tasks": [
+    {
+      "slug": "state-synthesizer-plan",
+      "title": "State Synthesizer Plan",
+      "summary": "Design generate_state.py to cluster desires/decisions, auto-label topics, and emit state/latest assets for prompt-synced insights.",
+      "status": "backlog",
+      "priority": {
+        "method": "ICE",
+        "impact": 8,
+        "confidence": 6,
+        "effort": 4,
+        "score": 12.0,
+        "rank": 1
+      },
+      "cluster": {
+        "key": "state-synth",
+        "label": "State Synth"
+      },
+      "dependencies": [],
+      "notes": [
+        "Include clustering strategy, topic naming heuristics, and incremental refresh plan.",
+        "Output JSON/MD/viewer bundle under startkit/state/."
+      ],
+      "links": {
+        "extractor": [
+          {
+            "source": "memo.md:428",
+            "excerpt": "DDDをアジャイルで進めつつ完璧な要件定義書を同時生成したい。",
+            "path": "memo.md",
+            "line": 428
+          },
+          {
+            "source": "Dialogue.md:455",
+            "excerpt": "ステートはDesireとDecisionsをクラスタリングしてトピック化する要望。",
+            "path": "Dialogue.md",
+            "line": 455
+          }
+        ],
+        "grouper": [
+          {
+            "source": "REPORT/output/ddd_cycle_flow_proposal.md:4",
+            "excerpt": "各プロンプト毎にgenerate_state.pyでクラスタリングし最新ステートを保持。",
+            "path": "REPORT/output/ddd_cycle_flow_proposal.md",
+            "line": 4
+          }
+        ],
+        "scorer": [
+          {
+            "source": "REPORT/output/ddd_cycle_flow_proposal.md:75",
+            "excerpt": "generate_state.pyの再実行コスト削減がオープンポイント。",
+            "path": "REPORT/output/ddd_cycle_flow_proposal.md",
+            "line": 75
+          }
+        ],
+        "shepherd": null
+      }
+    },
+    {
+      "slug": "narrative-mirror-spec",
+      "title": "Narrative Mirror Spec",
+      "summary": "Define generate_narrative.py to mirror repo hierarchy with concept/decision text after task completion, syncing with state outputs.",
+      "status": "backlog",
+      "priority": {
+        "method": "ICE",
+        "impact": 7,
+        "confidence": 6,
+        "effort": 5,
+        "score": 8.4,
+        "rank": 3
+      },
+      "cluster": {
+        "key": "narrative-tree",
+        "label": "Narrative Mirror"
+      },
+      "dependencies": [
+        "state-synthesizer-plan"
+      ],
+      "notes": [
+        "Map code directories to narrative nodes and attach decisions/insights per file.",
+        "Clarify which state snapshot narrative generation should reference."
+      ],
+      "links": {
+        "extractor": [
+          {
+            "source": "memo.md:428",
+            "excerpt": "コード階層に対応する概念定義と意思決定理由のテキストを生成したい。",
+            "path": "memo.md",
+            "line": 428
+          },
+          {
+            "source": "Dialogue.md:455",
+            "excerpt": "ナラティブ階層を最終成果物として深掘りする要望。",
+            "path": "Dialogue.md",
+            "line": 455
+          }
+        ],
+        "grouper": [
+          {
+            "source": "REPORT/output/ddd_cycle_flow_proposal.md:32",
+            "excerpt": "タスク完了時にgenerate_narrative.pyでナラティブを更新するフロー。",
+            "path": "REPORT/output/ddd_cycle_flow_proposal.md",
+            "line": 32
+          }
+        ],
+        "scorer": [
+          {
+            "source": "REPORT/output/ddd_cycle_flow_proposal.md:77",
+            "excerpt": "generate_narrative.pyが参照するStateスナップショット選定が未決。",
+            "path": "REPORT/output/ddd_cycle_flow_proposal.md",
+            "line": 77
+          }
+        ],
+        "shepherd": null
+      }
+    },
+    {
+      "slug": "task-bundle-composer",
+      "title": "Task Bundle Composer",
+      "summary": "Implement an internal composer to write task JSON and viewer data without workflow markdown, ensuring latest snapshot stays consistent.",
+      "status": "backlog",
+      "priority": {
+        "method": "ICE",
+        "impact": 6,
+        "confidence": 5,
+        "effort": 3,
+        "score": 10.0,
+        "rank": 2
+      },
+      "cluster": {
+        "key": "ops-automation",
+        "label": "Ops Automation"
+      },
+      "dependencies": [],
+      "notes": [
+        "Provide CLI or notebook workflow to populate latest.json/tasks-*.json synchronously.",
+        "Update viewer/index.html embedding step to pull from single source of truth."
+      ],
+      "links": {
+        "extractor": [
+          {
+            "source": "memo.md:572",
+            "excerpt": "workflow/にmdを残さず直接task.jsonを生成する方針。",
+            "path": "memo.md",
+            "line": 572
+          },
+          {
+            "source": "memo.md:577",
+            "excerpt": "latest.jsonの更新方法を明確にしたいという確認。",
+            "path": "memo.md",
+            "line": 577
+          }
+        ],
+        "grouper": [
+          {
+            "source": "AGENTS.md:54",
+            "excerpt": "Task JSON Formatと更新手順を明文化した新運用。",
+            "path": "AGENTS.md",
+            "line": 54
+          }
+        ],
+        "scorer": [],
+        "shepherd": null
+      }
+    }
+  ]
+}

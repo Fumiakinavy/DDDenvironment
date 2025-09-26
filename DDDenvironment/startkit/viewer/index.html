@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>タスクビューア</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 24px; background: #f9f9fb; color: #222; }
+    header { margin-bottom: 24px; }
+    section { margin-bottom: 32px; }
+    h2 { font-size: 1.2rem; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+    th { background: #eef2ff; font-weight: 600; }
+    tbody tr:hover { background: #f5faff; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 12px; font-size: 12px; background: #e0e7ff; color: #2f3a8f; margin-right: 6px; }
+    .status-ongoing { background: #fcd34d; color: #78350f; }
+    .status-in-progress { background: #f59e0b; color: #78350f; }
+    .status-resolved { background: #dcfce7; color: #166534; }
+    details { margin-top: 6px; }
+    summary { cursor: pointer; font-weight: 500; }
+    .note { margin-top: 4px; font-size: 0.9em; color: #555; }
+    code { background: #ececec; padding: 1px 4px; border-radius: 4px; }
+    .empty-state { padding: 16px; background: #f3f4f6; border-radius: 6px; color: #4b5563; }
+    .resolved-list { display: flex; flex-direction: column; gap: 10px; }
+    .resolved-list details { border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; padding: 10px 14px; }
+    .resolved-content { margin-top: 10px; display: grid; gap: 8px; }
+    .resolved-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.9em; color: #374151; }
+    .priority-score { font-weight: 600; }
+    .priority-detail { font-size: 0.85em; color: #4b5563; }
+    .resolved-row { font-size: 0.9em; color: #374151; }
+    .muted { color: #6b7280; font-style: italic; }
+    .source-details { margin-top: 6px; }
+    .actions { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+    .progress-check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85em; color: #1f2937; }
+    .progress-check input { width: 16px; height: 16px; accent-color: #2563eb; }
+    .restore-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #e5e7eb; color: #1f2937; border: none; border-radius: 999px; cursor: pointer; font-size: 0.85em; }
+    .restore-button:hover { filter: brightness(0.95); }
+    .error-banner { padding: 12px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="error-banner" id="error-banner"></div>
+    <h1 id="project-title">REPORT — Prioritized Tasks</h1>
+    <p>Generated at: <strong id="generated-at">2025-09-26T16:33:22+09:00</strong></p>
+  </header>
+  <section>
+    <h2>Active Tasks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Task</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Cluster</th>
+          <th>Dependencies</th>
+        </tr>
+      </thead>
+      <tbody id="active-body"></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Resolved Tasks</h2>
+    <div id="resolved-list" class="resolved-list"></div>
+  </section>
+  <script id="embedded-data" type="application/json">{"project": "REPORT", "generated_at": "2025-09-26T16:33:22+09:00", "generator": {"agent": "codex", "version": "1.0"}, "source_summary": {"dump_window": "2025-09-26T12:00+09:00→2025-09-26T16:31+09:00", "notes": ["State/Narrative cycle finalized; manual task JSON flow adopted", "Dump focus: state synthesizer, narrative mirror, task composer"]}, "tasks": [{"slug": "state-synthesizer-plan", "title": "State Synthesizer Plan", "summary": "Design generate_state.py to cluster desires/decisions, auto-label topics, and emit state/latest assets for prompt-synced insights.", "status": "backlog", "priority": {"method": "ICE", "impact": 8, "confidence": 6, "effort": 4, "score": 12.0, "rank": 1}, "cluster": {"key": "state-synth", "label": "State Synth"}, "dependencies": [], "notes": ["Include clustering strategy, topic naming heuristics, and incremental refresh plan.", "Output JSON/MD/viewer bundle under startkit/state/."], "links": {"extractor": [{"source": "memo.md:428", "excerpt": "DDDをアジャイルで進めつつ完璧な要件定義書を同時生成したい。", "path": "memo.md", "line": 428}, {"source": "Dialogue.md:455", "excerpt": "ステートはDesireとDecisionsをクラスタリングしてトピック化する要望。", "path": "Dialogue.md", "line": 455}], "grouper": [{"source": "REPORT/output/ddd_cycle_flow_proposal.md:4", "excerpt": "各プロンプト毎にgenerate_state.pyでクラスタリングし最新ステートを保持。", "path": "REPORT/output/ddd_cycle_flow_proposal.md", "line": 4}], "scorer": [{"source": "REPORT/output/ddd_cycle_flow_proposal.md:75", "excerpt": "generate_state.pyの再実行コスト削減がオープンポイント。", "path": "REPORT/output/ddd_cycle_flow_proposal.md", "line": 75}], "shepherd": null}}, {"slug": "narrative-mirror-spec", "title": "Narrative Mirror Spec", "summary": "Define generate_narrative.py to mirror repo hierarchy with concept/decision text after task completion, syncing with state outputs.", "status": "backlog", "priority": {"method": "ICE", "impact": 7, "confidence": 6, "effort": 5, "score": 8.4, "rank": 3}, "cluster": {"key": "narrative-tree", "label": "Narrative Mirror"}, "dependencies": ["state-synthesizer-plan"], "notes": ["Map code directories to narrative nodes and attach decisions/insights per file.", "Clarify which state snapshot narrative generation should reference."], "links": {"extractor": [{"source": "memo.md:428", "excerpt": "コード階層に対応する概念定義と意思決定理由のテキストを生成したい。", "path": "memo.md", "line": 428}, {"source": "Dialogue.md:455", "excerpt": "ナラティブ階層を最終成果物として深掘りする要望。", "path": "Dialogue.md", "line": 455}], "grouper": [{"source": "REPORT/output/ddd_cycle_flow_proposal.md:32", "excerpt": "タスク完了時にgenerate_narrative.pyでナラティブを更新するフロー。", "path": "REPORT/output/ddd_cycle_flow_proposal.md", "line": 32}], "scorer": [{"source": "REPORT/output/ddd_cycle_flow_proposal.md:77", "excerpt": "generate_narrative.pyが参照するStateスナップショット選定が未決。", "path": "REPORT/output/ddd_cycle_flow_proposal.md", "line": 77}], "shepherd": null}}, {"slug": "task-bundle-composer", "title": "Task Bundle Composer", "summary": "Implement an internal composer to write task JSON and viewer data without workflow markdown, ensuring latest snapshot stays consistent.", "status": "backlog", "priority": {"method": "ICE", "impact": 6, "confidence": 5, "effort": 3, "score": 10.0, "rank": 2}, "cluster": {"key": "ops-automation", "label": "Ops Automation"}, "dependencies": [], "notes": ["Provide CLI or notebook workflow to populate latest.json/tasks-*.json synchronously.", "Update viewer/index.html embedding step to pull from single source of truth."], "links": {"extractor": [{"source": "memo.md:572", "excerpt": "workflow/にmdを残さず直接task.jsonを生成する方針。", "path": "memo.md", "line": 572}, {"source": "memo.md:577", "excerpt": "latest.jsonの更新方法を明確にしたいという確認。", "path": "memo.md", "line": 577}], "grouper": [{"source": "AGENTS.md:54", "excerpt": "Task JSON Formatと更新手順を明文化した新運用。", "path": "AGENTS.md", "line": 54}], "scorer": [], "shepherd": null}}]}</script>
+  <script>
+    (function() {
+      const embeddedEl = document.getElementById('embedded-data');
+      let embeddedData = {};
+      try {
+        embeddedData = embeddedEl && embeddedEl.textContent ? JSON.parse(embeddedEl.textContent) : {};
+      } catch (error) {
+        console.warn('Failed to parse embedded data:', error);
+      }
+
+      const titleEl = document.getElementById('project-title');
+      const generatedAtEl = document.getElementById('generated-at');
+      const activeBody = document.getElementById('active-body');
+      const resolvedList = document.getElementById('resolved-list');
+      const errorBanner = document.getElementById('error-banner');
+
+      const tasksUrl = new URL('../tasks/latest.json', window.location.href);
+
+      const statusLabels = { backlog: 'Ongoing', 'in-progress': 'In Progress', resolved: 'Resolved' };
+      const statusClasses = { backlog: 'status-ongoing', 'in-progress': 'status-in-progress', resolved: 'status-resolved' };
+
+      let tasksState = [];
+
+      function taskScore(task) {
+        const value = task && task.priority && task.priority.score != null ? Number(task.priority.score) : NaN;
+        return Number.isFinite(value) ? value : -Infinity;
+      }
+
+      function taskRank(task) {
+        const value = task && task.priority && task.priority.rank != null ? Number(task.priority.rank) : NaN;
+        return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+      }
+
+      const formatScoreDisplay = task => {
+        const value = taskScore(task);
+        return Number.isFinite(value) ? value.toFixed(1) : '-';
+      };
+
+      const formatPriorityDetail = task => {
+        const impact = task && task.priority && task.priority.impact != null ? task.priority.impact : '-';
+        const confidence = task && task.priority && task.priority.confidence != null ? task.priority.confidence : '-';
+        const effort = task && task.priority && task.priority.effort != null ? task.priority.effort : '-';
+        return `Impact: ${impact} / Confidence: ${confidence} / Effort: ${effort}`;
+      };
+
+      const formatCluster = task => {
+        if (task && task.cluster) {
+          const label = task.cluster.label || task.cluster.key;
+          const key = task.cluster.key ? `<code>${task.cluster.key}</code>` : '';
+          if (label) {
+            return `${label} ${key}`.trim();
+          }
+        }
+        return '-';
+      };
+
+      const formatDependencies = deps => Array.isArray(deps) && deps.length ? deps.map(dep => `<code>${dep}</code>`).join(', ') : '-';
+
+      const formatNotes = notes => Array.isArray(notes) && notes.length ? notes.map(note => `<div class="note">• ${note}</div>`).join('') : '';
+
+      const buildSources = task => {
+        const extractor = Array.isArray(task && task.links && task.links.extractor) ? task.links.extractor : [];
+        const groups = Array.isArray(task && task.links && task.links.groups) ? task.links.groups : [];
+        const scores = Array.isArray(task && task.links && task.links.scores) ? task.links.scores : [];
+        const shepherd = task && task.links ? task.links.shepherd : null;
+        const extractorHtml = extractor.length ? extractor.map(src => `Extractor: <code>${src.path}</code>${src.line ? ` (L${src.line})` : ''}`).join('<br/>') : 'Extractor: -';
+        const groupsHtml = groups.length ? groups.map(src => `Groups: <code>${src.path}</code>${src.line ? ` (L${src.line})` : ''}`).join('<br/>') : 'Groups: -';
+        const scoresHtml = scores.length ? scores.map(src => `Scores: <code>${src.path}</code>`).join('<br/>') : 'Scores: -';
+        const shepherdHtml = shepherd && shepherd.path ? `Shepherd: <code>${shepherd.path}</code>` : 'Shepherd: -';
+        return `
+          <details class="source-details">
+            <summary>ソース参照</summary>
+            <div class="note">${extractorHtml}</div>
+            <div class="note">${groupsHtml}</div>
+            <div class="note">${scoresHtml}</div>
+            <div class="note">${shepherdHtml}</div>
+          </details>
+        `;
+      };
+
+      const findTask = slug => tasksState.find(task => task.slug === slug);
+
+      function renderActiveRow(task, fallbackIndex) {
+        const displayRank = Number.isFinite(taskRank(task)) ? taskRank(task) : fallbackIndex + 1;
+        const statusKey = task.status || 'backlog';
+        const statusClass = statusClasses[statusKey] || 'status-ongoing';
+        const statusLabel = statusLabels[statusKey] || statusKey;
+        const summary = task.summary ? `<p>${task.summary}</p>` : '';
+        const notes = formatNotes(task.notes);
+        const markResolved = `<label class="progress-check"><input type="checkbox" data-action="resolve" data-slug="${task.slug}"> Mark as Resolved</label>`;
+        return `
+          <tr>
+            <td>${displayRank}</td>
+            <td>
+              <strong><code>${task.slug}</code></strong>
+              ${summary}
+              ${notes}
+              <div class="actions">
+                ${markResolved}
+              </div>
+              ${buildSources(task)}
+            </td>
+            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+            <td>
+              <div>Score: <strong>${formatScoreDisplay(task)}</strong></div>
+              <div class="priority-detail">${formatPriorityDetail(task)}</div>
+            </td>
+            <td>${formatCluster(task)}</td>
+            <td>${formatDependencies(task.dependencies)}</td>
+          </tr>
+        `;
+      }
+
+      function renderResolvedPanel(task) {
+        const summary = task.summary ? `<p>${task.summary}</p>` : '<p class="muted">Summary not provided.</p>';
+        const notes = formatNotes(task.notes);
+        const dependencies = formatDependencies(task.dependencies);
+        return `
+          <details>
+            <summary>${task.title || task.slug}</summary>
+            <div class="resolved-content">
+              <div class="resolved-meta">
+                <span class="badge ${statusClasses.resolved}">${statusLabels.resolved}</span>
+                <span class="priority-score">Score: ${formatScoreDisplay(task)}</span>
+                <span class="priority-detail">${formatPriorityDetail(task)}</span>
+              </div>
+              ${summary}
+              ${notes}
+              <div class="resolved-row"><strong>Cluster:</strong> ${formatCluster(task)}</div>
+              <div class="resolved-row"><strong>Dependencies:</strong> ${dependencies}</div>
+              ${buildSources(task)}
+              <div class="actions">
+                <button class="restore-button" data-action="restore" data-slug="${task.slug}">Return to Ongoing</button>
+              </div>
+            </div>
+          </details>
+        `;
+      }
+
+      function resolveTask(slug) {
+        const task = findTask(slug);
+        if (!task || task.status === 'resolved') return;
+        task._lastActiveStatus = task.status || task._lastActiveStatus || 'backlog';
+        task.status = 'resolved';
+        render();
+      }
+
+      function restoreTask(slug) {
+        const task = findTask(slug);
+        if (!task) return;
+        const targetStatus = task._lastActiveStatus || 'backlog';
+        task.status = targetStatus;
+        render();
+      }
+
+      function render() {
+        const activeTasks = tasksState.filter(task => task.status !== 'resolved').sort((a, b) => {
+          const scoreA = taskScore(a);
+          const scoreB = taskScore(b);
+          if (scoreA === scoreB) return (a.slug || '').localeCompare(b.slug || '');
+          return scoreB - scoreA;
+        });
+
+        const resolvedTasks = tasksState.filter(task => task.status === 'resolved').sort((a, b) => {
+          const rankA = taskRank(a);
+          const rankB = taskRank(b);
+          if (rankA === rankB) return (a.slug || '').localeCompare(b.slug || '');
+          return rankA - rankB;
+        });
+
+        if (!activeTasks.length) {
+          activeBody.innerHTML = '<tr><td colspan="6"><div class="empty-state">アクティブなタスクがありません。</div></td></tr>';
+        } else {
+          activeBody.innerHTML = activeTasks.map((task, index) => renderActiveRow(task, index)).join('');
+        }
+
+        if (!resolvedTasks.length) {
+          resolvedList.innerHTML = '<div class="empty-state">解決済みタスクはまだありません。</div>';
+        } else {
+          resolvedList.innerHTML = resolvedTasks.map(renderResolvedPanel).join('');
+        }
+
+        document.querySelectorAll('[data-action="resolve"]').forEach(input => {
+          input.addEventListener('change', event => {
+            const slug = event.currentTarget.dataset.slug;
+            if (event.currentTarget.checked) {
+              resolveTask(slug);
+            }
+          });
+        });
+
+        document.querySelectorAll('[data-action="restore"]').forEach(button => {
+          button.addEventListener('click', event => {
+            event.preventDefault();
+            const slug = event.currentTarget.dataset.slug;
+            restoreTask(slug);
+          });
+        });
+      }
+
+      function normalizeDataset(dataset) {
+        if (!dataset || typeof dataset !== 'object') {
+          return { project: '-', generated_at: '-', tasks: [] };
+        }
+        const normalizedTasks = Array.isArray(dataset.tasks)
+          ? dataset.tasks.reduce((acc, rawTask) => {
+              if (!rawTask || typeof rawTask !== 'object' || !rawTask.slug) {
+                return acc;
+              }
+              const status = typeof rawTask.status === 'string' ? rawTask.status : 'backlog';
+              const lastActive = typeof rawTask._lastActiveStatus === 'string' && rawTask._lastActiveStatus
+                ? rawTask._lastActiveStatus
+                : (status === 'resolved' ? 'backlog' : status);
+              acc.push({
+                slug: rawTask.slug,
+                title: rawTask.title || '',
+                summary: rawTask.summary || '',
+                status,
+                priority: rawTask.priority && typeof rawTask.priority === 'object' ? rawTask.priority : {},
+                cluster: rawTask.cluster && typeof rawTask.cluster === 'object' ? rawTask.cluster : {},
+                dependencies: Array.isArray(rawTask.dependencies) ? rawTask.dependencies : [],
+                notes: Array.isArray(rawTask.notes) ? rawTask.notes : [],
+                links: rawTask.links && typeof rawTask.links === 'object' ? rawTask.links : {},
+                _lastActiveStatus: lastActive
+              });
+              return acc;
+            }, [])
+          : [];
+        return {
+          project: dataset.project || '-',
+          generated_at: dataset.generated_at || '-',
+          tasks: normalizedTasks
+        };
+      }
+
+      function applyDataset(dataset) {
+        const normalized = normalizeDataset(dataset);
+        titleEl.textContent = `${normalized.project} — Prioritized Tasks`;
+        generatedAtEl.textContent = normalized.generated_at;
+        tasksState = normalized.tasks.map(task => ({ ...task }));
+        render();
+      }
+
+      async function loadData() {
+        let dataset = embeddedData;
+        let usedFallback = true;
+        try {
+          const response = await fetch(tasksUrl.href, { cache: 'no-store' });
+          if (response.ok) {
+            dataset = await response.json();
+            usedFallback = false;
+          } else {
+            console.warn('Failed to fetch latest.json:', response.status, response.statusText);
+          }
+        } catch (error) {
+          console.warn('Failed to fetch latest.json:', error);
+        }
+
+        if (usedFallback) {
+          errorBanner.textContent = '最新のタスクJSONを取得できませんでした。埋め込みデータを表示しています。';
+          errorBanner.style.display = 'block';
+        } else {
+          errorBanner.style.display = 'none';
+        }
+
+        applyDataset(dataset);
+      }
+
+      loadData();
+    })();
+  </script>
+</body>
+</html>

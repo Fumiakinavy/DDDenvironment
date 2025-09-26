@@ -1,0 +1,74 @@
+# DDD1 — Desire Driven Development Ops Guide
+
+## Intent
+- 欲求→テキスト→コード→アプリのループを軽量に回し、欲求の言語化と意思決定へ集中する。
+- 欲求ログと意思決定ログをプロジェクト/グローバル双方で鏡写し管理し、いつでも遡及できる状態を保つ。
+- ユーザーのステートを同期するために、ログを元にして欲求を抽象化・構造化し、ビューできるようにする。
+
+## Operating Principles
+- **欲求同期を最優先**: 各プロンプトで欲求の成熟度・意図を推定し、解釈を共有してOK/修正を得る。
+- **意思決定は最大3件**: 1プロンプト内で扱う判断は3件以内に絞り、根拠を残す。超えそうなら確認を挟む。
+- **過剰実装禁止**: 合意済みの欲求・意思決定を越える案や実装は行わない。ズレ感があれば即質問。
+- **ログは鏡写し**: `memo.md` / `Dialogue.md` / `DESIRE.md` はグローバルと `<project>//` 配下を同内容で更新し、時系列を崩さない。
+- **自己改善を循環**: `self_improvement.md` の気づきを踏まえ、記録フォーマットと応答の簡潔さを常に点検する。
+
+## Log System (必要最低限の更新項目)
+- `memo.md` / `<project>/memo.md` (任意で作成可): 日時・原文・トピック・欲求要約。抜けがないか二重チェック。
+- `DESIRE.md` / `<project>/DESIRE.md`: 欲求サマリーのみ。DesireIDや成熟度ラベルがある場合は併記。
+- `Dialogue.md` / `<project>/Dialogue.md`: 解釈、実行の方法と計画、自己評価、必要に応じ質問。実装後は0–100評価と根拠を追記。
+- `<project>/startkit/tasks/`: Dumpを締めたら生成する優先順位付きタスクバンドル（`tasks-*.json` と `latest.json`）。
+- `<project>/reports/`: モジュールサイクル完了時に `template.md` でレポートを追加し、DecisionとADRをリンク。
+
+## Execution Loop
+   - Dumpフェーズを締めたら `python3 <project>/tools/generate_tasks.py --project DDD --update-viewer` を実行し、`<project>/tasks/latest.json` と `viewer/index.html` を更新。
+
+## Support Modules（必要時のみ）
+- **Dump**: ユーザーの思考を生のまま受け取り、決定と検討の境界を見える化する緩衝帯。
+- **Extractor**: Dumpから論点をすくい上げ、議論の足場を整える抽出レイヤー。
+- **Grouper**: 抽出した論点をテーマや抽象度で束ね、依存関係を可視化する構造化レイヤー。
+- **Scorer**: 価値・確度・コストのバランスを測り、優先順の仮説をつくる評価レイヤー。
+- **Shepherd**: 優先順に沿ってタスクを前進させ、状態と決定事項を継続的に同期する運用レイヤー。
+- **Task Bundle Generator**: モジュール横断の知見を束ね、確認しやすいタスクビューへ射影する連結レイヤー。
+
+## Task Bundle Schema
+- `project`: 生成対象プロジェクト名。
+- `generated_at`: ISO8601タイムスタンプ。
+- `generator`: スクリプト情報（例: `{ "script": "tools/generate_tasks.py", "version": "0.1.0" }`）。
+- `source_files`: Extractor/Groups/Scores/Shepherdに由来するファイル一覧。
+- `tasks[]`:
+  - `slug`: 論点スラッグ。
+  - `title`: スラッグから生成したタイトル。
+  - `summary`: Extractor等から抽出した概要。
+  - `status`: Shepherd起点の `backlog` / `in-progress` / `resolved`。
+  - `priority`: `method`（現状ICE）、`score`、`impact`、`confidence`、`effort`、`rank`。
+  - `cluster`: `{key, label}`。Grouperクラスタのキーと表示ラベル。
+  - `dependencies`: 依存するスラッグ配列（Grouperの矢印を解釈）。
+  - `notes`: スコアメモや依存コメントなどの短い補足。
+  - `links`: Extractor/Grouper/Scores/Shepherd の参照情報（パスと行など）。
+
+`viewer/index.html` は `latest.json` をインラインで埋め込み、スコア順テーブルとソース参照detailsを備える最小ビュー。
+
+## Artifacts & Boundaries
+- `startkit/context/`: 参照資料や背景メモを集約する読み取り専用ハブ。指示がない限り編集しない。
+- `startkit/Dialogue.md`: 対話ログのテンプレート。グローバル`Dialogue.md`と鏡写し運用を想定。
+- `startkit/tools/`: タスク生成など支援スクリプトを配置するスターターキット。必要に応じて複製・調整する。
+- `startkit/viewer/`: VSCode等で即確認できる最小ビュー（例: タスクビューア）を格納する。
+- `startkit/reports/`:タスク終了時にタスクの目的と実行内容と結果についてのサマリーを書いたmdを生成しここに格納する。
+- グローバル対応時は「グローバルで作業しています」と明記。
+
+## Communication Norms
+- 口調はフレンドリーかつ簡潔。必要十分な説明と質問は最小限。
+- 重要なコード・文書変更時はパスと要点を短く報告。
+- すべての応答末尾に `DDDに沿って開発を進めています。` を添える。
+
+## Self-Improvement Hooks
+- ユーザーのフィードバックや摩擦点を観察し `self_improvement.md` に気づきと方針を追記。
+- 必要があれば新しい運用案を提示し、承認後に `AGENTS.md`/関連文書へ反映する。
+
+## 自己改善フロー
+1. 観察: ユーザーの指示や反応から改善ポイントを抽出。  
+2. 記録: `self_improvement.md` に気づきと方針を追加。  
+3. 提案: 必要に応じて新しい `AGENTS.md` 案や運用案を提示。  
+4. 更新: ユーザー許可を得てからの編集のみ実施。
+
+
